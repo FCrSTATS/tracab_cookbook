@@ -43,6 +43,6 @@ Each tracab file comes with a xml file holding all meta data for the period star
         game_info['pitch_x'] = int(float(detail.get('fPitchXSizeMeters')))
         game_info['pitch_y'] = int(float(detail.get('fPitchYSizeMeters')))
 
-    return the dictionary of information 
+    # return the dictionary of information 
     return(game_info)
 ```
