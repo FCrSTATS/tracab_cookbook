@@ -5,11 +5,11 @@ Here is a collection of code snippets and functions that I have used to work wit
 This is based on parsing the raw .dat a pandas object, I call this object 'tdat'. Pandas isn't the most memory effective or speed effective data strcuture for tracking data, but whatever. All functions use the 'tdat' object name for the parsed tracking data, this is a default you can override. 
 
 ###### Contributions
-If you want to contribute snippets to store here they will be warmly welcomed. 
+If you want to contribute snippets to store here they will be warmly welcomed.  
 
-### Parse Tracab Metadata 
+### Parse Tracab Metadata 
 
-\\\py
+```py
     
     def parse_tracking_metadata(filename):
 
@@ -49,4 +49,4 @@ If you want to contribute snippets to store here they will be warmly welcomed.
         game_info['pitch_y'] = int(float(detail.get('fPitchYSizeMeters')))
 
     return(game_info)
-\\\
+```
