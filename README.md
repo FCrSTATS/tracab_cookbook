@@ -9,8 +9,9 @@ If you want to contribute snippets to store here they will be warmly welcomed.
 
 ### Parse Tracab Metadata 
 
-'''py
-def parse_tracking_metadata(filename):
+\\\py
+    
+    def parse_tracking_metadata(filename):
 
     tree = ET.parse(filename)
     root = tree.getroot()
@@ -48,4 +49,4 @@ def parse_tracking_metadata(filename):
         game_info['pitch_y'] = int(float(detail.get('fPitchYSizeMeters')))
 
     return(game_info)
-'''
+\\\
