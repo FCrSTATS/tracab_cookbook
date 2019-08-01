@@ -8,32 +8,27 @@ This is based on parsing the raw .dat a pandas object, I call this object 'tdat'
 If you want to contribute snippets to store here they will be warmly welcomed. Â 
 
 ### Parse Tracab Metadata 
+Each tracab file comes with a xml file holding all meta data for the period start and ends as well as the pitch dimensions. This function parses it into a dict for easier access for later analysis. 
 
 ```py
     
     def parse_tracking_metadata(filename):
 
-    tree = ET.parse(filename)
-    root = tree.getroot()
+    tree = ET.parse(filename)       # parse the raw xml 
+    root = tree.getroot()           # get the root object to access the information 
 
-    period_startframe = []
-    period_endframe = []
+    gamexml = root.findall('match')[0]      # get all of the nodes called 'match'
 
-    gamexml = root.findall('match')[0]
-    # gamexml.findall('period').get('iStartFrame')
+    info_raw = []       # create an empty list for storing the data 
 
-    info_raw = []
-
+    # for each period node get the start and end, appending them to the infa_raw list
     for i in gamexml.iter('period'):
-            # get the info from the ball node main chunk
-    #         print(int(i.get('iId')))
             info_raw.append( i.get('iStartFrame') )
             info_raw.append( i.get('iEndFrame') )
 
-    # # Create empty dict Capitals
-    game_info = dict()
+    game_info = dict()      # Create empty dict for storing the information 
 
-    # # Fill it with some values
+    # get all the information for each period and add the info to the dictionary 
     game_info['period1_start'] = int(info_raw[0])
     game_info['period1_end'] = int(info_raw[1])
     game_info['period2_start'] = int(info_raw[2])
@@ -43,10 +38,11 @@ If you want to contribute snippets to store here they will be warmly welcomed. Â
     game_info['period4_start'] = int(info_raw[6])
     game_info['period4_end'] = int(info_raw[7])
 
-
+    # get all the information for the pitch sizes and add the info to the dictionary 
     for detail in root.iter('match'):
         game_info['pitch_x'] = int(float(detail.get('fPitchXSizeMeters')))
         game_info['pitch_y'] = int(float(detail.get('fPitchYSizeMeters')))
 
+    return the dictionary of information 
     return(game_info)
 ```
