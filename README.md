@@ -46,3 +46,235 @@ Each tracab file comes with a xml file holding all meta data for the period star
     # return the dictionary of information 
     return(game_info)
 ```
+
+
+### Get One Frame of Tracking Data
+Select one frame in time of tracking data, with options to select just one team (1 = home, 0 = away, 10 = ball).
+
+```p
+def get_frame(frame_select, trackingdata = tdat, a_team = False, team_select = 1):
+    
+    if a_team:
+        return(trackingdata[(trackingdata['frameID'] == frame_select) & 
+                            (trackingdata['team'] == team_select)].reset_index(drop=True))    
+    else:
+        return(trackingdata[trackingdata['frameID'] == frame_select].reset_index(drop=True))
+```
+
+### Get a Segment of Tracking Data
+Select a period of time within the tracking data, with options to select just one team (1 = home, 0 = away, 10 = ball).
+
+```p
+def get_segment(frame_select_start, frame_select_end, trackingdata = tdat, a_team = False, team_select = 1):
+    
+    if a_team:
+        return(trackingdata[(trackingdata['frameID'].between(frame_select_start, frame_select_end)) & 
+                            (trackingdata['team'] == team_select)].reset_index(drop=True))    
+    else:
+        return(trackingdata[trackingdata['frameID'].between(frame_select_start, frame_select_end)].reset_index(drop=True))
+```
+
+### Add False/True Column if a Player's Team is in Possession
+Althougth tracab data has the information regarding which team is in possession in a particular frame there isn't a easy way of determining if a player's team is in possession of the ball.
+
+```p
+def add_team_in_possession(trackingdata = tdat):
+    
+    trackingdata['team_in_possession'] = [(x == 1 and y == "H") or 
+                                     (x == 0 and y == "A") 
+                                     for x,y in zip(trackingdata.team, 
+                                     trackingdata.ball_owning_team )]  
+    return( trackingdata )
+```
+
+### Create a Pitch 
+A flexible pitch function that's customisable but with fixed defaults. 
+
+```p
+def create_pitch(fig_width = 9, 
+                 fig_height = 6, 
+                 x = 5600, 
+                 y = 3600, 
+                 border = 400, 
+                 line_colour = 'black', 
+                 jp_alpha = 0.2, 
+                 jp_colour = 'r', 
+                 middle_thirds = False, 
+                 basic_features = False,
+                 JdeP = False, 
+                 add_axis = False):
+
+    plt.figure(figsize=(fig_width, fig_height))
+    plt.axis([-x-border,x+border,-y-border, y+border])
+
+    ## create each half 
+    plt.plot([ -x, -x, 0, 0, -x ] , [ -y, y, y, -y, -y], color = line_colour, linewidth = 1)
+    plt.plot([ x, x, 0, 0, x ] , [ -y, y, y, -y, -y], color = line_colour, linewidth = 1)
+
+    ## create the 18 yard boxes 
+    w_of_18 = 2015
+    h_of_18 = x-1660
+    
+    plt.plot([ -x, -x, -h_of_18, -h_of_18, -x ] , 
+    [ -w_of_18, w_of_18, w_of_18, -w_of_18, -w_of_18], 
+    color = 'black', 
+    linewidth = 1)
+    
+    plt.plot([ x, x, h_of_18, h_of_18, x ] , 
+    [ -w_of_18, w_of_18, w_of_18, -w_of_18, -w_of_18], 
+    color = 'black', l
+    inewidth = 1)
+
+    ## create the goals     
+    plt.plot([ -x, -x] , [ -366, 366], color = 'black', linewidth = 3)
+    plt.plot([ x, x] , [ -366, 366], color = 'black', linewidth = 3)
+    
+    ## Add middle thirds 
+    if middle_thirds:
+        middle_third_w = (x/2) - (x/6)
+        plt.fill([-middle_third_w,middle_third_w,middle_third_w,-middle_third_w,-middle_third_w], 
+                 [y,y,-y,-y,y], 
+                 "black",
+                 alpha = 0.05)
+
+    if basic_features:
+        print("")
+    else:
+        ## add centre circle     
+        circle1=plt.Circle((0,0),(915),edgecolor=line_colour, fill = None)
+        plt.gcf().gca().add_artist(circle1)
+
+        ## add spots 
+        plt.scatter([x-1100, -x+1100, 0], [0,0,0], color = line_colour, s=(x/500))
+        
+        ## create the 6 yard boxes 
+        w_of_6 = 1015 
+        h_of_6 = x-550 
+        
+        plt.plot([ -x, -x, -h_of_6, -h_of_6, -x ] , 
+        [ -w_of_6, w_of_6, w_of_6, -w_of_6, -w_of_6], 
+        color = 'black', 
+        linewidth = 1)
+        
+        plt.plot([ x, x, h_of_6, h_of_6, x ] , 
+        [ -w_of_6, w_of_6, w_of_6, -w_of_6, -w_of_6], 
+        color = 'black', linewidth = 1)
+
+
+    ## add Juego de Posicion
+    if JdeP:
+        middle_third_w = (x/2) - (x/6)
+
+        plt.plot([ -h_of_18, h_of_18 ] , 
+        [ w_of_18, w_of_18], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+        
+        plt.plot([ -h_of_18, h_of_18 ] , 
+        [ -w_of_18, -w_of_18], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+
+        plt.plot([ -h_of_18, h_of_18 ] , 
+        [ 915, 915], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+        
+        plt.plot([ -h_of_18, h_of_18 ] , 
+        [ -915, -915], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+
+        plt.plot([ h_of_18, h_of_18 ] , 
+        [ -y, y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+        
+        plt.plot([ -h_of_18, -h_of_18 ] , 
+        [ -y, y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+
+        jp_third = (h_of_18) / 2
+
+        plt.plot([ -middle_third_w, -middle_third_w ] , 
+        [ w_of_18, y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+        
+        plt.plot([ -middle_third_w, -middle_third_w ] , 
+        [ -w_of_18, -y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+
+        plt.plot([ middle_third_w, middle_third_w ] , 
+        [ w_of_18, y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+        
+        plt.plot([ middle_third_w, middle_third_w ] , 
+        [ -w_of_18, -y], 
+        color = jp_colour, 
+        linewidth = 1, 
+        alpha = jp_alpha)
+
+    ## add axis 
+    if add_axis:
+        print("")
+    else:
+        plt.axis('off')
+    
+    return(plt)
+
+```
+
+### Add the Ball x & y Coordinates
+Create two new columns for the ball's x and y coorindates that frame in time. 
+
+```p
+def add_ball_xy(trackingdata = tdat):
+    
+    ball_df = trackingdata[trackingdata['team'] == 10].reset_index(drop=True)[['frameID', 'x', 'y']]    
+    ball_df.columns = ['frameID', 'ball_x', 'ball_y']
+    
+    trackingdata = trackingdata.merge(ball_df, on = "frameID")
+    
+    return(trackingdata)
+
+```
+
+### Calculate the Distance to the Ball
+Creates a new column of the distance the player is from the ball. 
+
+```p
+def add_distance_to_ball(trackingdata = tdat):
+    trackingdata['distance_to_ball'] = trackingdata[['x', 'y']].sub(np.array( trackingdata[['ball_x', 'ball_y']] )).pow(2).sum(1).pow(0.5)
+    trackingdata.distance_to_ball = trackingdata.distance_to_ball.round(2)
+    return(trackingdata)
+```
+
+### Calculate the Distance to the Goals
+Creates two new columns for the distance from a player to each goal, goal1 (-x) and goal2 (x)
+
+```p
+def add_distance_to_goals(trackingdata = tdat, x = 5250):
+
+    trackingdata['distance_to_goal1'] = trackingdata[['x', 'y']].sub(np.array( -x, 0 )).pow(2).sum(1).pow(0.5)
+    trackingdata['distance_to_goal2'] = trackingdata[['x', 'y']].sub(np.array( x, 0 )).pow(2).sum(1).pow(0.5)
+
+    trackingdata.distance_to_goal1 = trackingdata.distance_to_goal1.round(2)
+    trackingdata.distance_to_goal2 = trackingdata.distance_to_goal2.round(2)
+
+    return(trackingdata)
+```
+
+
