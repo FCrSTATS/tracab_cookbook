@@ -291,7 +291,7 @@ calc_distance(a,b)
 "300"
 ```
 
-### Add Attacking Direction
+### Add Attacking Direction
 For many analyses with tracking data you need to know the direction of play. Adding an attacking direction column helps with this. Attcking direction of 1 means the team is defending the goal -x and attacking the goal +x. An attacking direction of 1 means the team is defending the goal +x and attacking the goal -x.
 
 ```p
