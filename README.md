@@ -362,3 +362,36 @@ def slope(x1, y1, x2, y2):
     return(m)
     
 ```
+
+### Convert a Tracab Location into Opta Coordinates
+There will be the need to convert a location in tracab coordinate space (-x:x and -y:y) into the equivilent Opta coordinates (0-100 for both x and y)
+
+```p
+def to_opta_coords(att_dir, X, Y, pitch_x = meta['pitch_x'], pitch_y = meta['pitch_y']):
+
+    if att_dir == 1:
+
+        tracab_x = (pitch_x / 2) * 100
+        opta_x_temp = 0.5 + (X / tracab_x) / 2
+        opta_x = int(round(opta_x_temp,2)*100)
+
+        tracab_y = (pitch_y / 2) * 100
+        opta_y_temp = 0.5 + (Y / tracab_y) / 2
+        opta_y = int(round(opta_y_temp,2)*100)
+
+        return([opta_x, opta_y])
+
+    else:
+
+        X = X*-1
+        tracab_x = (pitch_x / 2) * 100
+        opta_x_temp = 0.5 + (X / tracab_x) / 2
+        opta_x = int(round(opta_x_temp,2)*100)
+
+        Y = Y*-1
+        tracab_y = (pitch_y / 2) * 100
+        opta_y_temp = 0.5 + (Y / tracab_y) / 2
+        opta_y = int(round(opta_y_temp,2)*100)
+
+        return([opta_x, opta_y])
+```
