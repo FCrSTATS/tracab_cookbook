@@ -327,7 +327,7 @@ def add_attacking_direction(trackingdata=tdat, metadata = meta):
     return(trackingdata)
 ```
 
-### Switch the Pitch
+### Switch the Pitch
 For some analysis there is a need to orientate the pitch towards a standardised direction from -x -> x. This function switches the x,y coordinates to face -x -> x if the team in possession has an attacking direction of -1. Returns the tracking data segment and if the switch occured as a false/true. 
 
 ```p
