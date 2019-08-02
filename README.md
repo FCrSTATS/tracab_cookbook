@@ -277,4 +277,52 @@ def add_distance_to_goals(trackingdata = tdat, x = 5250):
     return(trackingdata)
 ```
 
+### Calculate Distance Between 2 Points
+Calculate the distance between 2 points 
 
+```p
+def calc_distance(x,y):   
+    return np.sqrt(np.sum((x-y)**2))
+
+# test
+a = np.array((0,100))
+b = np.array((0,400))
+calc_distance(a,b)
+"300"
+```
+
+### Add Attacking Direction
+For many analyses with tracking data you need to know the direction of play. Adding an attacking direction column helps with this. Attcking direction of 1 means the team is defending the goal -x and attacking the goal +x. An attacking direction of 1 means the team is defending the goal +x and attacking the goal -x.
+
+```p
+def add_attacking_direction(trackingdata=tdat, metadata = meta):
+    
+    period1_start_frame = trackingdata[trackingdata['frameID'] == metadata['period1_start']].reset_index(drop=True)
+
+    avg_starting_x_attack = period1_start_frame[period1_start_frame['team'] == 1]['x'].mean()
+    avg_starting_x_defence = period1_start_frame[period1_start_frame['team'] == 0]['x'].mean()
+
+    ## lists of attacking direction
+    periods_list = []
+    direction_list = []
+
+    if avg_starting_x_attack < avg_starting_x_defence:
+        periods_list.append(1)
+        periods_list.append(1)
+        direction_list.append(1)
+        direction_list.append(-1)
+    else:
+        periods_list.append(2)
+        periods_list.append(2)
+        direction_list.append(-1)
+        direction_list.append(1)
+
+    attacking_direction_ref = pd.DataFrame(
+    {'period_id': periods_list,
+    'attacking_direction': direction_list, 
+    'team': [1,0]})
+
+    trackingdata = pd.merge(trackingdata, attacking_direction_ref, on = ["team", "period_id"])
+    
+    return(trackingdata)
+```
