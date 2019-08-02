@@ -351,3 +351,14 @@ def switch_the_pitch(frame_seg):
         frame_seg['y'] = frame_seg.y
     return([frame_seg, switch])
 ```
+
+### Calculate the Slope between 2 Points
+For some analysis it is helpful to calculate the slope between two points. 
+
+```p
+
+def slope(x1, y1, x2, y2):
+    m = (y2-y1)/(x2-x1)
+    return(m)
+    
+```
