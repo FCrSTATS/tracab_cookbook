@@ -573,7 +573,7 @@ def parse_f7(file_name):
     return(playersDB)
 ```
 
-### Add the Player Name and Opta player_id 
+### 17. Add the Player Name and Opta player_id 
 Useful in order to link tracking data to players 
 
 ```p
