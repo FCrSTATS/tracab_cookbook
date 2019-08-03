@@ -7,7 +7,7 @@ This is based on parsing the raw .dat a pandas object, I call this object 'tdat'
 ###### Contributions
 If you want to contribute snippets to store here they will be warmly welcomed.  
 
-### Parse Tracab Metadata 
+### 1. Parse Tracab Metadata 
 Each tracab file comes with a xml file holding all meta data for the period start and ends as well as the pitch dimensions. This function parses it into a dict for easier access for later analysis. 
 
 ```py
@@ -48,7 +48,7 @@ Each tracab file comes with a xml file holding all meta data for the period star
 ```
 
 
-### Get One Frame of Tracking Data
+### 2. Get One Frame of Tracking Data
 Select one frame in time of tracking data, with options to select just one team (1 = home, 0 = away, 10 = ball).
 
 ```p
@@ -61,7 +61,7 @@ def get_frame(frame_select, trackingdata = tdat, a_team = False, team_select = 1
         return(trackingdata[trackingdata['frameID'] == frame_select].reset_index(drop=True))
 ```
 
-### Get a Segment of Tracking Data
+### 3. Get a Segment of Tracking Data
 Select a period of time within the tracking data, with options to select just one team (1 = home, 0 = away, 10 = ball).
 
 ```p
@@ -74,7 +74,7 @@ def get_segment(frame_select_start, frame_select_end, trackingdata = tdat, a_tea
         return(trackingdata[trackingdata['frameID'].between(frame_select_start, frame_select_end)].reset_index(drop=True))
 ```
 
-### Add False/True Column if a Player's Team is in Possession
+### 4. Add False/True Column if a Player's Team is in Possession
 Althougth tracab data has the information regarding which team is in possession in a particular frame there isn't a easy way of determining if a player's team is in possession of the ball.
 
 ```p
@@ -87,7 +87,7 @@ def add_team_in_possession(trackingdata = tdat):
     return( trackingdata )
 ```
 
-### Create a Pitch 
+### 5. Create a Pitch 
 A flexible pitch function that's customisable but with fixed defaults. 
 
 ```p
@@ -237,7 +237,7 @@ def create_pitch(fig_width = 9,
 
 ```
 
-### Add the Ball x & y Coordinates
+### 6. Add the Ball x & y Coordinates
 Create two new columns for the ball's x and y coorindates that frame in time. 
 
 ```p
@@ -252,7 +252,7 @@ def add_ball_xy(trackingdata = tdat):
 
 ```
 
-### Calculate the Distance to the Ball
+### 7. Calculate the Distance to the Ball
 Creates a new column of the distance the player is from the ball. 
 
 ```p
@@ -262,7 +262,7 @@ def add_distance_to_ball(trackingdata = tdat):
     return(trackingdata)
 ```
 
-### Calculate the Distance to the Goals
+### 8. Calculate the Distance to the Goals
 Creates two new columns for the distance from a player to each goal, goal1 (-x) and goal2 (x)
 
 ```p
@@ -277,7 +277,7 @@ def add_distance_to_goals(trackingdata = tdat, x = 5250):
     return(trackingdata)
 ```
 
-### Calculate Distance Between 2 Points
+### 9. Calculate Distance Between 2 Points
 Calculate the distance between 2 points 
 
 ```p
@@ -291,7 +291,7 @@ calc_distance(a,b)
 "300"
 ```
 
-### Add Attacking Direction
+### 10. Add Attacking Direction
 For many analyses with tracking data you need to know the direction of play. Adding an attacking direction column helps with this. Attcking direction of 1 means the team is defending the goal -x and attacking the goal +x. An attacking direction of 1 means the team is defending the goal +x and attacking the goal -x.
 
 ```p
@@ -327,7 +327,7 @@ def add_attacking_direction(trackingdata=tdat, metadata = meta):
     return(trackingdata)
 ```
 
-### Switch the Pitch
+### 11. Switch the Pitch
 For some analysis there is a need to orientate the pitch towards a standardised direction from -x -> x. This function switches the x,y coordinates to face -x -> x if the team in possession has an attacking direction of -1. Returns the tracking data segment and if the switch occured as a false/true. 
 
 ```p
@@ -352,7 +352,7 @@ def switch_the_pitch(frame_seg):
     return([frame_seg, switch])
 ```
 
-### Calculate the Slope between 2 Points
+### 12. Calculate the Slope between 2 Points
 For some analysis it is helpful to calculate the slope between two points. 
 
 ```p
@@ -363,7 +363,7 @@ def slope(x1, y1, x2, y2):
     
 ```
 
-### Convert a Tracab Location into Opta Coordinates
+### 13. Convert a Tracab Location into Opta Coordinates
 There will be the need to convert a location in tracab coordinate space (-x:x and -y:y) into the equivilent Opta coordinates (0-100 for both x and y)
 
 ```p
@@ -396,7 +396,7 @@ def to_opta_coords(att_dir, X, Y, pitch_x = meta['pitch_x'], pitch_y = meta['pit
         return([opta_x, opta_y])
 ```
 
-### Convert a Opta Location into Tracab Coordinates
+### 14. Convert a Opta Location into Tracab Coordinates
 There will be the need to convert a location in opta coordinate space (0-100 for both x and y) into the equivilent tracab coordinates (-x:x and -y:y).
 
 ```p
@@ -416,7 +416,7 @@ def to_tracab_coords(att_dir, opta_x, opta_y, pitch_x = meta['pitch_x'], pitch_y
 
         return([tracab_x, tracab_y])
 ```
-### Parse f7 Files to Player Database
+### 15. Parse f7 Files to Player Database
 Convert the f7 xml file into a player info dataframe 
 ```p
 def parse_f7(file_name):
