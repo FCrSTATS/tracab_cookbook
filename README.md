@@ -257,9 +257,20 @@ Creates a new column of the distance the player is from the ball.
 
 ```p
 def add_distance_to_ball(trackingdata = tdat):
-    trackingdata['distance_to_ball'] = trackingdata[['x', 'y']].sub(np.array( trackingdata[['ball_x', 'ball_y']] )).pow(2).sum(1).pow(0.5)
-    trackingdata.distance_to_ball = trackingdata.distance_to_ball.round(2)
-    return(trackingdata)
+    
+    if 'ball_x' in trackingdata.columns: 
+        trackingdata['distance_to_ball'] = trackingdata[['x', 'y']].sub(np.array( trackingdata[['ball_x', 'ball_y']] )).pow(2).sum(1).pow(0.5)
+        trackingdata.distance_to_ball = trackingdata.distance_to_ball.round(2)
+        return(trackingdata)
+
+    else: 
+        print("x||----------------")
+        print("Ball x and y coordinates missing - 'add_distance_to_ball' function failed")
+        print("Use 'add_ball_xy' to add the missing coordinates")
+        print("----------------||x")
+
+        
+add_distance_to_ball(tdat2)
 ```
 
 ### 8. Calculate the Distance to the Goals
