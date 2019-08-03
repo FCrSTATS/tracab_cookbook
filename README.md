@@ -573,3 +573,21 @@ def parse_f7(file_name):
     return(playersDB)
 ```
 
+### Add the Player Name and Opta player_id 
+Useful in order to link tracking data to players 
+
+```p
+def add_player_id(f7_filename = f7_file, tracking_data = tdat):
+    
+    playerDB_ = parse_f7(f7_filename)[['jersey_no','player_id', 'team', 'player_name']]
+
+    ballDB = pd.Series(['999.0', '000000', '10.0', 'ball'], index=['jersey_no','player_id', 'team', 'player_name'])
+    playerDB_ = playerDB_.append(ballDB, ignore_index=True)
+
+    playerDB_['jersey_no'] = playerDB_['jersey_no'].transform(float)
+    playerDB_['team'] = playerDB_['team'].transform(float)
+    
+    tracking_data = tracking_data.merge(playerDB_, on = ['jersey_no', 'team'])
+    
+    return(tracking_data)
+```
