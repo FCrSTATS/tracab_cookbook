@@ -416,3 +416,149 @@ def to_tracab_coords(att_dir, opta_x, opta_y, pitch_x = meta['pitch_x'], pitch_y
 
         return([tracab_x, tracab_y])
 ```
+### Parse f7 Files to Player Database
+Convert the f7 xml file into a player info dataframe 
+```p
+def parse_f7(file_name):
+
+    # parse the xml and convert to a tree and root
+    tree = ET.parse(file_name)
+    root = tree.getroot()
+
+    match_id = int(root.find('SoccerDocument').get('uID')[1:])
+
+    # ## get the main game info from the single 'Game' node
+    gameinfo = root.findall('SoccerDocument')
+    gameinfo = gameinfo[0]
+    # # gameinfo.get('Country')
+    # gameinfo = gameinfo.iter('MatchData')
+    # gameinfo = gameinfo[0]
+
+
+
+    # gameinfo.iter('MatchInfo')
+    # root.iter('MatchData').iter('MatchInfo').get('Period')
+
+    formation_place = []
+    player_id = []
+    position = []
+    jersey_no = []
+    status = []
+
+    for neighbor in gameinfo.iter('MatchPlayer'):
+        formation_place.append(neighbor.get('Formation_Place')) 
+        player_id.append(neighbor.get('PlayerRef'))
+        position.append(neighbor.get('Position'))
+        jersey_no.append(neighbor.get('ShirtNumber')) 
+        status.append(neighbor.get('Status')) 
+
+
+    players1 = pd.DataFrame(
+        {'formation_place': formation_place,
+         'player_id': player_id,
+         'position': position,
+         'jersey_no': jersey_no,
+         'status': status})
+
+
+    p_id = []
+    first_name = []
+    last_name = []
+
+    for neighbor in gameinfo.iter('Player'):
+        p_id.append(neighbor.get('uID')) 
+        first_name.append(neighbor.find('PersonName').find('First').text)
+        last_name.append(neighbor.find('PersonName').find('Last').text)
+
+
+    players2 = pd.DataFrame(
+        {'first_name': first_name,
+         'player_id': p_id,
+         'last_name': last_name})
+
+
+    players1['player_id'] = players1['player_id'].str[1:]
+    players2['player_id'] = players2['player_id'].str[1:]
+
+    playersDB = players1.merge(players2, on='player_id', how='inner')
+    playersDB["player_name"] = playersDB["first_name"].map(str) + " " + playersDB["last_name"]
+
+
+    minute = []
+    period_id = []
+    player_off = []
+    player_on = []
+
+
+    for neighbor in gameinfo.iter('Substitution'):
+        minute.append(neighbor.get('Time')) 
+        period_id.append(neighbor.get('Period')) 
+        player_off.append(neighbor.get('SubOff')) 
+        player_on.append(neighbor.get('SubOn')) 
+
+
+    subs = pd.DataFrame(
+        {'minute': minute,
+         'period_id': period_id,
+         'player_off': player_off,
+         'player_on': player_on
+        })
+
+
+    subs['player_off'] = subs['player_off'].str[1:]
+    subs['player_on'] = subs['player_on'].str[1:]
+
+    playersDB['start_min'] = 0 
+    playersDB['end_min'] = 0 
+
+    match_length = 90
+    for neighbor in gameinfo.iter('Stat'):
+        if neighbor.get('Type') == "match_time":
+            match_length = int(neighbor.text)
+
+    for i in range(0,len(playersDB)):
+
+        player_2_test = playersDB.iloc[i]
+
+        if player_2_test['status'] == "Start":
+
+            if player_2_test['player_id'] in subs.player_off.get_values():
+                playersDB.at[i, 'end_min'] = subs.loc[subs['player_off'] == player_2_test['player_id']]['minute'].get_values()[0]
+
+            else:
+                playersDB.at[i, 'end_min'] = match_length
+
+        if player_2_test['status'] == "Sub":
+
+            if player_2_test['player_id'] in subs.player_on.get_values():
+                playersDB.at[i, 'start_min'] = subs.loc[subs['player_on'] == player_2_test['player_id']]['minute'].get_values()[0]
+                playersDB.at[i, 'end_min'] = match_length
+            else:
+                playersDB.at[i, 'end_min'] = player_2_test['end_min']
+
+            if player_2_test['player_id'] in subs.player_off.get_values():
+                playersDB.at[i, 'end_min'] = subs.loc[subs['player_off'] == player_2_test['player_id']]['minute'].get_values()[0]
+
+    playersDB['mins_played'] = playersDB["end_min"] - playersDB["start_min"] 
+
+    playersDB['match_id'] = match_id
+
+    teams = []
+    for team in gameinfo.findall('Team'):
+        teams.append(team.get('uID')[1:])
+
+    playersDB['team_id'] = ""
+    playersDB['team'] = ""
+
+
+    for i in range(0,36):
+        if i <= 17:
+            playersDB.at[i, 'team_id'] = teams[0]
+            playersDB.at[i, 'team'] = 1
+        else:
+            playersDB.at[i, 'team_id'] = teams[1]
+            playersDB.at[i, 'team'] = 0
+
+    return(playersDB)
+```
+
