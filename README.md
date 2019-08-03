@@ -395,3 +395,26 @@ def to_opta_coords(att_dir, X, Y, pitch_x = meta['pitch_x'], pitch_y = meta['pit
 
         return([opta_x, opta_y])
 ```
+
+### Convert a Opta Location into Tracab Coordinates
+There will be the need to convert a location in opta coordinate space (0-100 for both x and y) into the equivilent tracab coordinates (-x:x and -y:y).
+
+```p
+def to_tracab_coords(att_dir, X, Y, pitch_x = meta['pitch_x'], pitch_y = meta['pitch_y']):
+    
+    if att_dir == 1:
+
+        tracab_x = (X - 50) * pitch_x
+        tracab_y = (Y - 50) * pitch_y
+
+        return([tracab_x, tracab_y])
+
+    else:
+
+        tracab_x = ((X - 50) * pitch_x) * -1
+        tracab_y = ((Y - 50) * pitch_y) * -1
+
+        return([tracab_x, tracab_y])
+
+        return([opta_x, opta_y])
+```
